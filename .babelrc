@@ -1,0 +1,20 @@
+{
+    "presets": [
+        "stage-0",
+        "es2015"
+    ],
+    "plugins": [
+        [
+            "transform-runtime",
+            {
+                "helpers": false,
+                "polyfill": false,
+                "regenerator": true
+            }
+        ],
+        "transform-async-to-generator",
+        "add-module-exports",
+        "transform-object-rest-spread"
+    ],
+    "sourceMaps": "both"
+}
