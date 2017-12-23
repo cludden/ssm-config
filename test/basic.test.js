@@ -115,4 +115,35 @@ describe('UNIT basic', function () {
     expect(config.get('shared')).to.be.an('object').with.all.keys(['secret']);
     expect(config.get('shared.secret')).to.equal('foo');
   });
+
+  it('supports custom validation', async function () {
+    // define custom validation function
+    const validate = (c) => {
+      const bar = parseInt(c.bar, 10);
+      if (bar < 10) {
+        throw new Error('validation');
+      }
+      c.bar = bar; // eslint-disable-line
+    };
+    const stub = sandbox.stub(ssm, 'getParametersByPath');
+    stub.onCall(0).returns({
+      promise: sinon.stub().resolves({
+        Parameters: [{
+          Name: '/foo/bar',
+          Value: 9,
+        }],
+      }),
+    });
+    stub.onCall(1).returns({
+      promise: sinon.stub().resolves({
+        Parameters: [{
+          Name: '/foo/bar',
+          Value: 11,
+        }],
+      }),
+    });
+    expect(init({ prefix: '/foo', ssm, validate })).to.eventually.be.rejectedWith(Error);
+    const config = await init({ prefix: '/foo', ssm, validate });
+    expect(config.get('bar')).to.equal(11);
+  });
 });
