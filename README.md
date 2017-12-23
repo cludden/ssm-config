@@ -7,6 +7,7 @@ Define some parameters in SSM:
 $ aws ssm put-parameter --type String --name /my-app/log/level --value debug
 $ aws ssm put-parameter --type String --name /my-app/db --value {"user":"foo","port":3306}
 $ aws ssm put-parameter --type SecureString --name /my-app/db/password --value s3cr3t
+$ aws ssm put-parameter --type String --name /shared/number --value 11
 ```
 
 Build a config object:
@@ -15,7 +16,7 @@ import AWS from 'aws-sdk';
 import { expect } from 'chai';
 import loadConfig from '@cludden/ssm-config';
 
-const prefix = 'my-app';
+const prefix = '/my-app';
 const ssm = new AWS.SSM();
 
 const config = await loadConfig({ prefix, ssm });
@@ -23,6 +24,29 @@ config.get('log'); // => {level: "debug"}
 config.get('log.level'); // => "debug"
 config.get('db'); // => {"user":"foo","port":3306,"password":"s3cr3t"}
 config.get('db.password'); // => "s3cr3t"
+```
+
+With custom validation logic:
+```javascript
+import AWS from 'aws-sdk';
+import { expect } from 'chai';
+import loadConfig from '@cludden/ssm-config';
+
+const prefix = ['/my-app', '/shared'];
+const ssm = new AWS.SSM();
+
+function validate(c) {
+    if (!Object.prototype.hasOwnProperty.call(c, 'number')) {
+        throw new Error('missing required property "number"');
+    }
+    c.number = parseInt(c.number, 10);
+    if (isNaN(c.number) || c.number < 10) {
+        throw new Error('"number" must be greater than or equal to 10');
+    }
+}
+
+const config = await loadConfig({ prefix, ssm, validate });
+config.get('number'); // => 11
 ```
 
 ## Installing

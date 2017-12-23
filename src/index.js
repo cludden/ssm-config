@@ -12,7 +12,7 @@ const slash = /\//g;
  * @return {Promise}
  */
 export default async function initializeConfig(options) {
-  const { prefix, ssm } = options;
+  const { prefix, ssm, validate } = options;
   // coerce prefix into array of prefixes
   const prefixes = Array.isArray(prefix) ? prefix : [prefix];
 
@@ -31,6 +31,11 @@ export default async function initializeConfig(options) {
     });
     return acc;
   }, {});
+
+  // allow custom validation
+  if (typeof validate === 'function') {
+    validate(config);
+  }
 
   // return an object with an exposed getter
   return {
