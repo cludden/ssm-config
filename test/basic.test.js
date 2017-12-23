@@ -83,4 +83,36 @@ describe('UNIT basic', function () {
     expect(config.get('c')).to.have.nested.property('c.d.0', 'e');
     expect(config.get('c')).to.have.nested.property('c.d.1.f', 'g');
   });
+
+  it('supports multiple prefixes', async function () {
+    const stub = sandbox.stub(ssm, 'getParametersByPath').returns({
+      promise: sinon.stub().rejects(new Error('blah')),
+    });
+    const params = {
+      foo: [{
+        Name: '/foo/log/level',
+        Value: 'debug',
+      }, {
+        Name: '/foo/foo',
+        Value: '{"test":123}',
+      }],
+      bar: [{
+        Name: '/bar/shared',
+        Value: '{"secret":"foo"}',
+      }],
+    };
+    stub.withArgs(sinon.match({ Path: '/foo' })).returns({
+      promise: sinon.stub().resolves({ Parameters: params.foo }),
+    });
+    stub.withArgs(sinon.match({ Path: '/bar' })).returns({
+      promise: sinon.stub().resolves({ Parameters: params.bar }),
+    });
+    const config = await init({ prefix: ['/foo', '/bar'], ssm });
+    expect(config.get('log')).to.be.an('object').with.all.keys(['level']);
+    expect(config.get('log.level')).to.equal('debug');
+    expect(config.get('foo')).to.be.an('object').with.all.keys(['test']);
+    expect(config.get('foo.test')).to.equal(123);
+    expect(config.get('shared')).to.be.an('object').with.all.keys(['secret']);
+    expect(config.get('shared.secret')).to.equal('foo');
+  });
 });

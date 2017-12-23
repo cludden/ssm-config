@@ -6,22 +6,32 @@ const slash = /\//g;
 
 /**
  * Initialize a new configuration object
- * @param  {Object}  options        - options
- * @param  {String}  options.prefix - ssm parameter prefix
- * @param  {Object}  options.ssm    - aws ssm service instance
+ * @param  {Object}          options        - options
+ * @param  {String|String[]} options.prefix - ssm parameter prefix
+ * @param  {Object}          options.ssm    - aws ssm service instance
  * @return {Promise}
  */
 export default async function initializeConfig(options) {
   const { prefix, ssm } = options;
-  // load params from ssm
-  const params = await load({ prefix, ssm });
-  // build configuration object using names and values of ssm parameters
-  const config = params.reduce((acc, p) => {
-    const key = p.Name.replace(`${prefix}/`, '').replace(slash, '.');
-    const val = jsonre.test(p.Value) ? JSON.parse(p.Value) : p.Value;
-    set(acc, key, val);
+  // coerce prefix into array of prefixes
+  const prefixes = Array.isArray(prefix) ? prefix : [prefix];
+
+  const parameters = await Promise.all(prefixes.map(async (pre) => {
+    const p = await load({ prefix: pre, ssm });
+    return { pre, params: p };
+  }));
+
+  // iterate through prefixes, merging parameters onto single result object
+  const config = parameters.reduce((acc, { pre, params }) => {
+    // build configuration object using names and values of ssm parameters
+    params.forEach((p) => {
+      const key = p.Name.replace(`${pre}/`, '').replace(slash, '.');
+      const val = jsonre.test(p.Value) ? JSON.parse(p.Value) : p.Value;
+      set(acc, key, val);
+    });
     return acc;
   }, {});
+
   // return an object with an exposed getter
   return {
     get: get.bind(null, config),
