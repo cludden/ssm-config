@@ -54,13 +54,12 @@ async function load({ _nextToken, prefix, ssm }) {
   // build service method parameters
   const params = {
     MaxResults,
+    Path: prefix,
     Recursive: true,
     WithDescryption: true,
   };
   if (typeof _nextToken === 'string') {
     params.NextToken = _nextToken;
-  } else {
-    params.Path = prefix;
   }
   const { NextToken, Parameters: results } = await ssm.getParametersByPath(params).promise();
   if (results.length === MaxResults && typeof NextToken === 'string') {
