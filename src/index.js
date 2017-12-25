@@ -56,7 +56,7 @@ async function load({ _nextToken, prefix, ssm }) {
     MaxResults,
     Path: prefix,
     Recursive: true,
-    WithDescryption: true,
+    WithDecryption: true,
   };
   if (typeof _nextToken === 'string') {
     params.NextToken = _nextToken;
