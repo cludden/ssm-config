@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0-beta.3"></a>
+# [1.0.0-beta.3](https://github.com/cludden/ssm-config/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2017-12-25)
+
+
+### Bug Fixes
+
+* fixes MissingRequiredParameter error when making recursive ssm calls ([bf6d2f8](https://github.com/cludden/ssm-config/commit/bf6d2f8))
+
+
+
 <a name="1.0.0-beta.2"></a>
 # [1.0.0-beta.2](https://github.com/cludden/ssm-config/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2017-12-23)
 
