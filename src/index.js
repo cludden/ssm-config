@@ -63,7 +63,7 @@ async function load({ _nextToken, prefix, ssm }) {
   }
   const { NextToken, Parameters: results } = await ssm.getParametersByPath(params).promise();
   if (results.length === MaxResults && typeof NextToken === 'string') {
-    const nextResults = await load({ _nextToken: NextToken, ssm });
+    const nextResults = await load({ _nextToken: NextToken, prefix, ssm });
     results.push(...nextResults);
   }
   return results;
