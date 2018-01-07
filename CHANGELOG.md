@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/cludden/ssm-config/compare/v1.0.0-beta.5...v1.0.0) (2018-01-07)
+
+
+### Features
+
+* refactors package to return raw config instead of object with getter ([7937c81](https://github.com/cludden/ssm-config/commit/7937c81))
+* replaces `lodash` dependency with `lodash.set` ([58199aa](https://github.com/cludden/ssm-config/commit/58199aa))
+
+
+
 <a name="1.0.0-beta.5"></a>
 # [1.0.0-beta.5](https://github.com/cludden/ssm-config/compare/v1.0.0-beta.4...v1.0.0-beta.5) (2017-12-25)
 
