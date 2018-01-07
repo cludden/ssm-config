@@ -74,14 +74,12 @@ describe('UNIT basic', function () {
       });
     });
     const config = await init({ prefix: '/test', ssm });
-    expect(config).to.have.property('get')
-      .that.is.a('function');
-    expect(config.get('foo')).to.have.nested.property('bar', 'baz');
-    expect(config.get('foo')).to.have.nested.property('baz.bar', 'foo');
-    expect(config.get('a')).to.be.an('array').deep.equal([1, 2, 3]);
-    expect(config.get('b')).to.equal('b');
-    expect(config.get('c')).to.have.nested.property('c.d.0', 'e');
-    expect(config.get('c')).to.have.nested.property('c.d.1.f', 'g');
+    expect(config).to.have.nested.property('foo.bar', 'baz');
+    expect(config).to.have.nested.property('foo.baz.bar', 'foo');
+    expect(config).to.have.property('a').that.is.an('array').deep.equal([1, 2, 3]);
+    expect(config).to.have.property('b', 'b');
+    expect(config).to.have.nested.property('c.c.d.0', 'e');
+    expect(config).to.have.nested.property('c.c.d.1.f', 'g');
   });
 
   it('supports multiple prefixes', async function () {
@@ -108,12 +106,9 @@ describe('UNIT basic', function () {
       promise: sinon.stub().resolves({ Parameters: params.bar }),
     });
     const config = await init({ prefix: ['/foo', '/bar'], ssm });
-    expect(config.get('log')).to.be.an('object').with.all.keys(['level']);
-    expect(config.get('log.level')).to.equal('debug');
-    expect(config.get('foo')).to.be.an('object').with.all.keys(['test']);
-    expect(config.get('foo.test')).to.equal(123);
-    expect(config.get('shared')).to.be.an('object').with.all.keys(['secret']);
-    expect(config.get('shared.secret')).to.equal('foo');
+    expect(config).to.have.nested.property('log.level', 'debug');
+    expect(config).to.have.nested.property('foo.test', 123);
+    expect(config).to.have.nested.property('shared.secret', 'foo');
   });
 
   it('supports custom validation', async function () {
@@ -130,7 +125,7 @@ describe('UNIT basic', function () {
       promise: sinon.stub().resolves({
         Parameters: [{
           Name: '/foo/bar',
-          Value: 9,
+          Value: '9',
         }],
       }),
     });
@@ -138,12 +133,12 @@ describe('UNIT basic', function () {
       promise: sinon.stub().resolves({
         Parameters: [{
           Name: '/foo/bar',
-          Value: 11,
+          Value: '11',
         }],
       }),
     });
     expect(init({ prefix: '/foo', ssm, validate })).to.eventually.be.rejectedWith(Error);
     const config = await init({ prefix: '/foo', ssm, validate });
-    expect(config.get('bar')).to.equal(11);
+    expect(config.bar).to.equal(11);
   });
 });

@@ -1,5 +1,16 @@
 # ssm-config
-a `node.js` library for fetching and parsing encrypted configuration from AWS SSM Parameter Store,
+a `node.js` library for building configuration objects using parameters from AWS SSM Parameter Store. Useful for lambda functions using the `node.js` runtime.
+
+**Features**
+- supports all ssm parameter types, including encrypted parameters with type `SecureString`
+- supports custom validation/parsing allowing for defaults and type coercion
+- supports composing complex configuration using multiple ssm parameters
+
+## Installing
+```shell
+# install via NPM
+$ npm install --save @cludden/ssm-config
+```
 
 ## Getting Started
 Define some parameters in SSM:
@@ -13,17 +24,25 @@ $ aws ssm put-parameter --type String --name /shared/number --value 11
 Build a config object:
 ```javascript
 import AWS from 'aws-sdk';
-import { expect } from 'chai';
-import loadConfig from '@cludden/ssm-config';
+import ssmConfig from '@cludden/ssm-config';
 
 const prefix = '/my-app';
 const ssm = new AWS.SSM();
 
-const config = await loadConfig({ prefix, ssm });
-config.get('log'); // => {level: "debug"}
-config.get('log.level'); // => "debug"
-config.get('db'); // => {"user":"foo","port":3306,"password":"s3cr3t"}
-config.get('db.password'); // => "s3cr3t"
+const config = await ssmConfig({ prefix, ssm });
+console.log(config);
+/*
+{
+  db: {
+    user: "foo",
+    password: "s3cr3t",
+    port: 3306,
+  },
+  log: {
+    level: "debug",
+  }
+}
+*/
 ```
 
 With custom validation logic:
@@ -46,13 +65,20 @@ function validate(c) {
 }
 
 const config = await loadConfig({ prefix, ssm, validate });
-config.get('number'); // => 11
-```
-
-## Installing
-```shell
-# install via NPM
-$ npm install --save @cludden/ssm-config
+console.log(config);
+/*
+{
+  db: {
+    user: "foo",
+    password: "s3cr3t",
+    port: 3306,
+  },
+  log: {
+    level: "debug",
+  },
+  number: 11,
+}
+*/
 ```
 
 ## Contributing
@@ -76,11 +102,6 @@ $ docker-compose run ssm-config npm run lint
 
 # run security scan
 $ docker-compose run ssm-config npm run sec
-```
-
-## Building
-```
-$ docker-compose run ssm-config
 ```
 
 ## License

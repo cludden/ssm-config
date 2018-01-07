@@ -1,4 +1,4 @@
-import { get, set } from 'lodash';
+import set from 'lodash.set';
 
 export const MaxResults = 10;
 const jsonre = /^({|\[)/;
@@ -38,9 +38,7 @@ export default async function initializeConfig(options) {
   }
 
   // return an object with an exposed getter
-  return {
-    get: get.bind(null, config),
-  };
+  return config;
 }
 
 /**
