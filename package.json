@@ -1,6 +1,6 @@
 {
   "name": "@cludden/ssm-config",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "a node.js package that pulls configuration from aws ssm parameter store",
   "main": "./dist/index.js",
   "scripts": {
